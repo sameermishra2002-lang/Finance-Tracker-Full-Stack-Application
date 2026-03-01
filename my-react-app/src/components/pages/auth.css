@@ -1,0 +1,233 @@
+/* Auth Container - Centers the login card */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #667eea ;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+/* Main Card */
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  width: 100%;
+  max-width: 600px;
+  min-height: 450px;
+}
+
+/* Title */
+.auth-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 30px;
+}
+
+/* Error Message */
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  border: 1px solid #fcc;
+  text-align: center;
+  animation: slideIn 0.3s ease;
+}
+
+/* Success Message */
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  border: 1px solid #6ee7b7;
+  text-align: center;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Content Layout - Left Icon, Right Form */
+.auth-content {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+/* Left Side - Login Icon Section */
+.auth-icon-section {
+  flex: 0 0 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 6px solid #667eea;
+  border-radius: 40%;
+  padding: 12px;
+}
+
+.login-icon {
+  width: 100px;
+  height: 100px;
+  color: #667eea;
+  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+
+}
+
+/* Right Side - Form Section */
+.auth-form-section {
+  flex: 1;
+}
+
+/* Input Groups */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Input Icon */
+.input-icon {
+  position: absolute;
+  left: 15px;
+  width: 20px;
+  height: 20px;
+  color: #999;
+  pointer-events: none;
+}
+
+/* Input Fields */
+.auth-input {
+  width: 100%;
+  padding: 14px 14px 14px 45px;
+  font-size: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.auth-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.auth-input::placeholder {
+  color: #999;
+}
+
+/* Sign In Button */
+.auth-button {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.auth-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.auth-button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Footer - Signup Link */
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.auth-footer p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.auth-link:hover:not(:disabled) {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.auth-link:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 30px 20px;
+  }
+
+  .auth-content {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .auth-icon-section {
+    flex: none;
+  }
+
+  .login-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .auth-title {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+}
