@@ -217,7 +217,7 @@ export const getTransactionSummary = async (startDate = null, endDate = null) =>
   if (endDate) params.append('endDate', endDate);
   
   const response = await api.get(`/transactions/summary?${params.toString()}`);
-  return response.data;
+  return response.data.summary || {};
 };
 
 /**
@@ -229,7 +229,7 @@ export const getCategoryBreakdown = async (startDate = null, endDate = null) => 
   if (endDate) params.append('endDate', endDate);
   
   const response = await api.get(`/transactions/analytics/category-breakdown?${params.toString()}`);
-  return response.data;
+  return response.data.breakdown || [];
 };
 
 /**
@@ -240,7 +240,15 @@ export const getMonthlyTrend = async (year = null) => {
   if (year) params.append('year', year);
   
   const response = await api.get(`/transactions/analytics/monthly-trend?${params.toString()}`);
-  return response.data;
+  return response.data.trend || [];
+};
+
+/**
+ * Get yearly spending overview
+ */
+export const getYearlyOverview = async () => {
+  const response = await api.get(`/transactions/analytics/yearly-overview`);
+  return response.data.overview || [];
 };
 
 export default api;

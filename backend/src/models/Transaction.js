@@ -230,13 +230,103 @@ export const getMonthlyTrend = async (userId, year) => {
     WHERE user_id = $1 
     AND EXTRACT(YEAR FROM transaction_date) = $2
     GROUP BY month, type
-    ORDER BY month
+    ORDER BY month, type
   `;
   
   const result = await db.query(query, [userId, year]);
-  return result.rows.map(row => ({
-    month: parseInt(row.month),
-    type: row.type,
-    total: parseFloat(row.total)
-  }));
+  
+  // Transform data into format expected by LineChart
+  // Group by month to create single object per month with income and expense
+  const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthlyData = {};
+  
+  // Initialize all months with 0 values
+  for (let i = 1; i <= 12; i++) {
+    monthlyData[i] = {
+      month: monthNames[i],
+      income: 0,
+      expense: 0
+    };
+  }
+  
+  // Fill in actual data from query
+  result.rows.forEach(row => {
+    const monthNum = parseInt(row.month);
+    if (monthlyData[monthNum]) {
+      if (row.type === 'income') {
+        monthlyData[monthNum].income = parseFloat(row.total);
+      } else if (row.type === 'expense') {
+        monthlyData[monthNum].expense = parseFloat(row.total);
+      }
+    }
+  });
+  
+  // Convert to array and filter out empty months at the end
+  const trendArray = Object.values(monthlyData);
+  
+  // Find the last month with data
+  let lastMonthWithData = 0;
+  for (let i = trendArray.length - 1; i >= 0; i--) {
+    if (trendArray[i].income > 0 || trendArray[i].expense > 0) {
+      lastMonthWithData = i;
+      break;
+    }
+  }
+  
+  // If no data exists, return empty array; otherwise return up to last month with data
+  return lastMonthWithData === 0 && trendArray[0].income === 0 && trendArray[0].expense === 0
+    ? []
+    : trendArray.slice(0, lastMonthWithData + 1);
+};
+
+/**
+ * Get yearly spending overview
+ */
+export const getYearlyOverview = async (userId) => {
+  const query = `
+    SELECT 
+      EXTRACT(YEAR FROM transaction_date) as year,
+      type,
+      SUM(amount) as total,
+      COUNT(*) as transaction_count
+    FROM transactions 
+    WHERE user_id = $1
+    GROUP BY year, type
+    ORDER BY year DESC, type
+  `;
+  
+  const result = await db.query(query, [userId]);
+  
+  // Transform data into year-based summary
+  const yearlyData = {};
+  
+  result.rows.forEach(row => {
+    const year = parseInt(row.year);
+    if (!yearlyData[year]) {
+      yearlyData[year] = {
+        year: year,
+        income: 0,
+        expense: 0,
+        balance: 0,
+        transactionCount: 0
+      };
+    }
+    
+    if (row.type === 'income') {
+      yearlyData[year].income = parseFloat(row.total);
+    } else if (row.type === 'expense') {
+      yearlyData[year].expense = parseFloat(row.total);
+    }
+    
+    yearlyData[year].transactionCount += parseInt(row.transaction_count);
+  });
+  
+  // Calculate balance and sort by year descending
+  return Object.values(yearlyData)
+    .map(year => ({
+      ...year,
+      balance: year.income - year.expense
+    }))
+    .sort((a, b) => b.year - a.year);
 };

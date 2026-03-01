@@ -9,8 +9,10 @@ A full-stack web application for managing personal finances with income/expense 
 - ✅ **Income & Expense Tracking** - Categorized transactions with dates and descriptions
 - ✅ **Transaction Management** - Create, read, update, delete transactions
 - ✅ **Financial Analytics** - Summary, category breakdown, and monthly trends
+- ✅ **Data Visualization** - Pie, Bar, and Line charts with Recharts
 - ✅ **Role-Based Access Control** - Admin, User, and Read-Only roles
 - ✅ **API Documentation** - Interactive Swagger/OpenAPI docs at `/api/docs`
+- ✅ **Rate Limiting** - Protection against abuse and brute force attacks
 
 ### Technical Highlights
 - **Backend**: Express.js with PostgreSQL
@@ -188,6 +190,8 @@ curl -X GET "http://localhost:5000/api/transactions/summary?startDate=2026-01-01
 
 - **[Setup Guide](./SETUP.md)** - Complete local development setup
 - **[API Documentation](./backend/API_DOCUMENTATION.md)** - API reference and examples
+- **[Rate Limiting Guide](./backend/RATE_LIMITING.md)** - Rate limit tiers and configuration
+- **[Charts Integration](./CHARTS_INTEGRATION.md)** - Data visualization with Recharts
 - **[Swagger UI](http://localhost:5000/api/docs)** - Interactive API docs (when running)
 
 ---

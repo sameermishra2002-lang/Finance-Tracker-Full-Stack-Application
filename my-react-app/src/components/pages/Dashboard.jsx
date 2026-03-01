@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import * as api from '../../services/api';
 import './Dashboard.css';
 
@@ -28,6 +28,8 @@ const Dashboard = () => {
   });
   const [filterType, setFilterType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [monthlyTrendData, setMonthlyTrendData] = useState([]);
+  const [loadingTrend, setLoadingTrend] = useState(false);
 
   const categories = {
     income: ['Salary', 'Freelance', 'Investment', 'Gift', 'Other'],
@@ -57,6 +59,24 @@ const Dashboard = () => {
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
+
+  // Fetch monthly trend data
+  useEffect(() => {
+    const fetchMonthlyTrend = async () => {
+      try {
+        setLoadingTrend(true);
+        const currentYear = new Date().getFullYear();
+        const trendData = await api.getMonthlyTrend(currentYear);
+        setMonthlyTrendData(trendData || []);
+      } catch (err) {
+        console.error('Error fetching monthly trend:', err);
+        setMonthlyTrendData([]);
+      } finally {
+        setLoadingTrend(false);
+      }
+    };
+    fetchMonthlyTrend();
+  }, []);
 
   // ========================================================================
   // ADMIN: FETCH ALL USERS
@@ -410,7 +430,7 @@ const Dashboard = () => {
                 <div className="card-icon">💵</div>
                 <div className="card-content">
                   <p className="card-label">Total Income</p>
-                  <h2 className="card-value">${totalIncome.toLocaleString()}</h2>
+                  <h2 className="card-value">₹{totalIncome.toLocaleString()}</h2>
                 </div>
               </div>
 
@@ -418,7 +438,7 @@ const Dashboard = () => {
                 <div className="card-icon">💸</div>
                 <div className="card-content">
                   <p className="card-label">Total Expenses</p>
-                  <h2 className="card-value">${totalExpense.toLocaleString()}</h2>
+                  <h2 className="card-value">₹{totalExpense.toLocaleString()}</h2>
                 </div>
               </div>
 
@@ -426,7 +446,7 @@ const Dashboard = () => {
                 <div className="card-icon">💰</div>
                 <div className="card-content">
                   <p className="card-label">Balance</p>
-                  <h2 className="card-value">${balance.toLocaleString()}</h2>
+                  <h2 className="card-value">₹{balance.toLocaleString()}</h2>
                 </div>
               </div>
             </div>
@@ -453,7 +473,7 @@ const Dashboard = () => {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                      <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -472,7 +492,7 @@ const Dashboard = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
                     <Legend />
                     <Bar dataKey="amount" fill="#8884d8">
                       {barChartData.map((entry, index) => (
@@ -481,6 +501,47 @@ const Dashboard = () => {
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+
+              {/* Line Chart - Monthly Trends */}
+              <div className="chart-card">
+                <h3 className="chart-title">📉 Monthly Income vs Expenses (Line Chart)</h3>
+                {monthlyTrendData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={monthlyTrendData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis />
+                      <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="income" 
+                        stroke="#10b981" 
+                        strokeWidth={2}
+                        name="Income"
+                        dot={{ fill: '#10b981', r: 4 }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="expense" 
+                        stroke="#ef4444" 
+                        strokeWidth={2}
+                        name="Expenses"
+                        dot={{ fill: '#ef4444', r: 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p style={{ textAlign: 'center', color: '#999', padding: '40px' }}>
+                    No monthly trend data to display
+                  </p>
+                )}
               </div>
             </div>
 
@@ -508,7 +569,7 @@ const Dashboard = () => {
                   <tbody>
                     {filteredTransactions.slice(0, 5).map(transaction => (
                       <tr key={transaction.id}>
-                        <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                        <td>{new Date(transaction.transaction_date).toLocaleDateString()}</td>
                         <td>{transaction.category}</td>
                         <td>{transaction.description}</td>
                         <td>
@@ -517,7 +578,7 @@ const Dashboard = () => {
                           </span>
                         </td>
                         <td className={`amount ${transaction.type}`}>
-                          {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                          {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
                         </td>
                       </tr>
                     ))}
@@ -585,7 +646,7 @@ const Dashboard = () => {
                     <tbody>
                       {filteredTransactions.map(transaction => (
                         <tr key={transaction.id}>
-                          <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                          <td>{new Date(transaction.transaction_date).toLocaleDateString()}</td>
                           <td>{transaction.category}</td>
                           <td>{transaction.description}</td>
                           <td>
@@ -594,7 +655,7 @@ const Dashboard = () => {
                             </span>
                           </td>
                           <td className={`amount ${transaction.type}`}>
-                            {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                            {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
                           </td>
                           {user.role !== 'read-only' && (
                             <td>

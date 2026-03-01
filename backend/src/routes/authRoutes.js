@@ -202,16 +202,17 @@
 import express from 'express';
 import * as authController from '../controllers/authController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
+import { authLimiter } from '../config/rateLimit.js';
 
 const router = express.Router();
 
-router.post('/register', authController.register);
+router.post('/register', authLimiter, authController.register);
 
-router.post('/login', authController.login);
+router.post('/login', authLimiter, authController.login);
 
-router.post('/refresh', authController.refresh);
+router.post('/refresh', authLimiter, authController.refresh);
 
-router.post('/logout', authController.logout);
+router.post('/logout', authLimiter, authController.logout);
 
 router.get('/me', authenticate, authController.getCurrentUser);
 

@@ -8,6 +8,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
+import { globalLimiter } from './config/rateLimit.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
@@ -39,6 +40,9 @@ if (process.env.NODE_ENV === 'development') {
     next();
   });
 }
+
+// Global rate limiter (applies to all routes)
+app.use(globalLimiter);
 
 // ============================================================================
 // ROUTES
@@ -107,9 +111,9 @@ app.use((err, req, res, next) => {
 // ============================================================================
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 API: http://localhost:${PORT}`);
+  console.log(` Server running on port ${PORT}`);
+  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(` API: http://localhost:${PORT}`);
 });
 
 export default app;

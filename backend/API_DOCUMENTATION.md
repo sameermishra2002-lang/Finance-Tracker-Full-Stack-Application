@@ -41,6 +41,82 @@ Or in Swagger UI:
 - Paste your access token (without "Bearer ")
 - Click "Authorize"
 
+## Rate Limiting
+
+Rate limiting is implemented to protect the API from abuse and ensure fair usage for all users.
+
+### Rate Limit Tiers
+
+| Endpoint Group | Limit | Window |
+|---|---|---|
+| **Authentication** | 5 requests | 15 minutes |
+| **Transactions** | 100 requests | 1 hour |
+| **Analytics** | 50 requests | 1 hour |
+| **User Management** (Admin) | 10 requests | 1 hour |
+| **Global Fallback** | 100 requests | 15 minutes |
+
+### How Rate Limiting Works
+
+When you exceed the rate limit for an endpoint group, you'll receive a `429 Too Many Requests` response:
+
+```json
+{
+  "error": "Too many requests",
+  "message": "You have exceeded the rate limit. Please try again later.",
+  "retryAfter": "3600"
+}
+```
+
+### Rate Limit Headers
+
+Each response includes rate limit information in the headers:
+
+```
+RateLimit-Limit: 100
+RateLimit-Remaining: 45
+RateLimit-Reset: 1677652800
+```
+
+- **RateLimit-Limit**: Maximum requests allowed in the window
+- **RateLimit-Remaining**: Requests remaining in the current window
+- **RateLimit-Reset**: Unix timestamp when the limit resets
+
+### Best Practices
+
+1. **Monitor Headers**: Check `RateLimit-Remaining` to know your quota
+2. **Implement Backoff**: If rate limited, wait before retrying
+3. **Cache Data**: Use cached data when possible to reduce requests
+4. **Batch Operations**: Combine multiple operations when possible
+5. **Use Webhooks** (future): Instead of polling, use event webhooks
+
+### Examples
+
+#### Hitting the rate limit
+```bash
+# First 5 requests succeed
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user","password":"pass"}'
+
+# 6th request within 15 minutes gets rate limited
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user2","password":"pass"}'
+
+# Response: 429 Too Many Requests
+```
+
+#### Checking rate limit headers
+```bash
+curl -i http://localhost:5000/api/transactions \
+  -H "Authorization: Bearer <token>"
+
+# Check response headers for:
+# RateLimit-Limit: 100
+# RateLimit-Remaining: 87
+# RateLimit-Reset: 1677652800
+```
+
 ## API Endpoints Overview
 
 ### Authentication

@@ -273,21 +273,26 @@ import express from 'express';
 import * as transactionController from '../controllers/transactionController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { blockReadOnly } from '../middleware/roleMiddleware.js';
+import { transactionLimiter, analyticsLimiter } from '../config/rateLimit.js';
 
 const router = express.Router();
 
 // All transaction routes require authentication
 router.use(authenticate);
+// Apply transaction rate limiter to all transaction routes
+router.use(transactionLimiter);
 
 // ============================================================================
 // Analytics Routes (must come before /:id to avoid conflicts)
 // ============================================================================
 
-router.get('/summary', transactionController.getTransactionSummary);
+router.get('/summary', analyticsLimiter, transactionController.getTransactionSummary);
 
-router.get('/analytics/category-breakdown', transactionController.getCategoryBreakdown);
+router.get('/analytics/category-breakdown', analyticsLimiter, transactionController.getCategoryBreakdown);
 
-router.get('/analytics/monthly-trend', transactionController.getMonthlyTrend);
+router.get('/analytics/monthly-trend', analyticsLimiter, transactionController.getMonthlyTrend);
+
+router.get('/analytics/yearly-overview', analyticsLimiter, transactionController.getYearlyOverview);
 
 // ============================================================================
 // CRUD Routes
@@ -305,4 +310,4 @@ router.delete('/:id', blockReadOnly, transactionController.deleteTransaction);
 
 export default router;
 
-export default router;
+

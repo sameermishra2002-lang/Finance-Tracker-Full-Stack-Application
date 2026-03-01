@@ -231,3 +231,19 @@ export const getMonthlyTrend = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get yearly spending overview
+ * GET /api/transactions/analytics/yearly-overview
+ */
+export const getYearlyOverview = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    const overview = await Transaction.getYearlyOverview(userId);
+    
+    res.json({ overview });
+  } catch (error) {
+    next(error);
+  }
+};

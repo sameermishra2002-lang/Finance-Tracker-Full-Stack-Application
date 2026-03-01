@@ -189,6 +189,11 @@
   margin: 0 0 20px;
 }
 
+/* Line chart (3rd chart card) spans full width for better trend visualization */
+.charts-section .chart-card:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
 /* Category Breakdown */
 .category-breakdown {
   display: flex;

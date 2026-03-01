@@ -113,12 +113,14 @@ import express from 'express';
 import * as userController from '../controllers/userController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { requireRole, requireOwnerOrAdmin } from '../middleware/roleMiddleware.js';
+import { strictLimiter, transactionLimiter } from '../config/rateLimit.js';
 
 const router = express.Router();
 
 router.get(
   '/',
   authenticate,
+  strictLimiter,
   requireRole(['admin']),
   userController.getAllUsers
 );
@@ -126,6 +128,7 @@ router.get(
 router.get(
   '/:id',
   authenticate,
+  transactionLimiter,
   requireOwnerOrAdmin(),
   userController.getUserById
 );
@@ -133,6 +136,7 @@ router.get(
 router.put(
   '/:id/role',
   authenticate,
+  strictLimiter,
   requireRole(['admin']),
   userController.updateUserRole
 );
@@ -140,6 +144,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
+  strictLimiter,
   requireRole(['admin']),
   userController.deleteUser
 );
