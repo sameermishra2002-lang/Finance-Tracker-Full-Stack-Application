@@ -105,8 +105,8 @@ NODE_ENV=development
 
 # Database
 DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=your_database_name
+DB_PORT=5433
+DB_NAME=auth_db
 DB_USER=postgres
 DB_PASSWORD=your_password
 
