@@ -98,8 +98,8 @@ NODE_ENV=development
 
 # Database Configuration
 DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=finance_db
+DB_PORT=5433
+DB_NAME=auth_db
 DB_USER=postgres
 DB_PASSWORD=your_postgres_password
 
@@ -172,7 +172,7 @@ Run these SQL commands in the PostgreSQL prompt:
 
 ```sql
 -- Create database
-CREATE DATABASE finance_db;
+CREATE DATABASE auth_db;
 
 -- Create user (if not exists)
 CREATE USER postgres WITH PASSWORD 'your_postgres_password';
@@ -181,10 +181,10 @@ CREATE USER postgres WITH PASSWORD 'your_postgres_password';
 ALTER ROLE postgres SET client_encoding TO 'utf8';
 ALTER ROLE postgres SET default_transaction_isolation TO 'read committed';
 ALTER ROLE postgres SET default_transaction_deferrable TO 'on';
-GRANT ALL PRIVILEGES ON DATABASE finance_db TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE auth_db TO postgres;
 
 -- Connect to the new database
-\c finance_db
+\c auth_db
 ```
 
 ### Step 3: Initialize Database Schema
@@ -193,9 +193,9 @@ From PowerShell, navigate to the backend and run:
 
 ```bash
 cd "Sameer Full Stack/backend"
-psql -U postgres -d finance_db -f src/db/schema.sql
-psql -U postgres -d finance_db -f src/db/transactions-schema.sql
-psql -U postgres -d finance_db -f src/db/init.sql
+psql -U postgres -d auth_db -f src/db/schema.sql
+psql -U postgres -d auth_db -f src/db/transactions-schema.sql
+psql -U postgres -d auth_db -f src/db/init.sql
 ```
 
 These commands create:
@@ -207,7 +207,7 @@ These commands create:
 ### Step 4: Verify Database Setup
 
 ```sql
-\c finance_db
+\c auth_db
 \dt                  -- List all tables
 SELECT * FROM users; -- Should be empty or have test data
 ```
@@ -421,7 +421,7 @@ echo "VITE_API_URL=http://localhost:5000/api" > .env
 | `NODE_ENV` | development | Environment mode |
 | `DB_HOST` | localhost | Database host |
 | `DB_PORT` | 5433 | Database port |
-| `DB_NAME` | finance_db | Database name |
+| `DB_NAME` | auth_db | Database name |
 | `DB_USER` | postgres | Database user |
 | `DB_PASSWORD` | - | Database password |
 | `JWT_SECRET` | - | Secret for access tokens (required) |

@@ -47,8 +47,8 @@ npm install
 # Create .env file with VITE_API_URL
 
 # 3. Initialize database
-psql -U postgres -d finance_db -f ../backend/src/db/schema.sql
-psql -U postgres -d finance_db -f ../backend/src/db/transactions-schema.sql
+psql -U postgres -d auth_db -f ../backend/src/db/schema.sql
+psql -U postgres -d auth_db -f ../backend/src/db/transactions-schema.sql
 
 # 4. Run backend (Terminal 1)
 cd ../backend

@@ -21,8 +21,8 @@ cd ../my-react-app
 
 # 5. Initialize database (one-time)
 cd ../backend
-psql -U postgres -d finance_db -f src/db/schema.sql
-psql -U postgres -d finance_db -f src/db/transactions-schema.sql
+psql -U postgres -d auth_db -f src/db/schema.sql
+psql -U postgres -d auth_db -f src/db/transactions-schema.sql
 
 # 6. Start backend (Terminal 1)
 npm run dev
@@ -107,7 +107,7 @@ curl -X DELETE "http://localhost:5000/api/transactions/1" \
 
 ### Connect to Database
 ```bash
-psql -U postgres -d finance_db
+psql -U postgres -d auth_db
 ```
 
 ### View All Tables
@@ -216,7 +216,7 @@ src/
 ### Backend .env
 - [ ] `PORT` = 5000
 - [ ] `DB_HOST` = localhost
-- [ ] `DB_NAME` = finance_db
+- [ ] `DB_NAME` = auth_db
 - [ ] `DB_USER` = postgres
 - [ ] `DB_PASSWORD` = your_password
 - [ ] `JWT_SECRET` = random_string
@@ -285,7 +285,7 @@ npm run dev
 ### Database Issues
 ```bash
 # Check connection
-psql -U postgres -d finance_db -c "SELECT 1"
+psql -U postgres -d auth_db -c "SELECT 1"
 
 # Reset password
 ALTER USER postgres WITH PASSWORD 'new_password';
