@@ -549,7 +549,7 @@ const handleAmountChange = (e) => {
                     <YAxis />
                     <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                     <Legend />
-                    <Bar dataKey="amount" fill="#8884d8">
+                    <Bar dataKey="amount" fill="#333">
                       {barChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
