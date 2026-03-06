@@ -136,9 +136,11 @@ Caching helps reduce database load and improves dashboard performance.
 ### Running Redis with Docker (Recommended)
 
 ```bash
+cd "Sameer Full Stack/backend"
+```
 docker run -d -p 6379:6379 --name redis-server redis
 
-Verify Redis is Running
+### Verify Redis is Running
 docker ps
 
 You should see a container running with port 6379.
