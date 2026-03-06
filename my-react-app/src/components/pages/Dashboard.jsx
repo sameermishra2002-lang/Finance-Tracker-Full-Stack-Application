@@ -1,7 +1,10 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import * as api from '../../services/api';
+import * as api from '../../services/api'; 
+import MoneyCash from '../../assets/money-cash.svg';
+import MoneyGoing from '../../assets/money-going.svg';
+import BalanceLeft from '../../assets/wallet.svg';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -212,6 +215,52 @@ const Dashboard = () => {
     }));
   }, [categories]);
 
+const handleAmountChange = (e) => {
+  const input = e.target;
+  const selectionStart = input.selectionStart;
+
+  const oldValue = input.value;
+
+  // remove commas
+  let rawValue = oldValue.replace(/,/g, '');
+
+  // allow numbers + decimal
+  if (!/^\d*\.?\d*$/.test(rawValue)) return;
+
+  if (!rawValue) {
+    setFormData(prev => ({ ...prev, amount: '' }));
+    return;
+  }
+
+  const parts = rawValue.split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1] ?? '';
+
+  const formattedInteger = Number(integerPart).toLocaleString('en-IN');
+
+  const formattedValue =
+    decimalPart !== '' ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+
+  setFormData(prev => ({
+    ...prev,
+    amount: formattedValue
+  }));
+
+  // calculate cursor shift caused by commas
+  const commasBefore = (oldValue.match(/,/g) || []).length;
+  const commasAfter = (formattedValue.match(/,/g) || []).length;
+
+  let newCursor = selectionStart + (commasAfter - commasBefore);
+
+  // prevent cursor jumping to wrong position
+  if (newCursor < 0) newCursor = 0;
+  if (newCursor > formattedValue.length) newCursor = formattedValue.length;
+
+  requestAnimationFrame(() => {
+    input.setSelectionRange(newCursor, newCursor);
+  });
+};
+
   const handleAddTransaction = useCallback(async (e) => {
     e.preventDefault();
     
@@ -224,7 +273,7 @@ const Dashboard = () => {
       const transactionData = {
         type: formData.type,
         category: formData.category,
-        amount: parseFloat(formData.amount),
+        amount: parseFloat(formData.amount.replace(/,/g, '')),
         description: formData.description,
         transaction_date: formData.date
       };
@@ -254,7 +303,10 @@ const Dashboard = () => {
     setFormData({
       type: transaction.type,
       category: transaction.category,
-      amount: transaction.amount.toString(),
+      amount: Number(transaction.amount).toLocaleString('en-IN', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }), 
       description: transaction.description,
       date: transaction.transaction_date || transaction.date
     });
@@ -268,7 +320,7 @@ const Dashboard = () => {
       const transactionData = {
         type: formData.type,
         category: formData.category,
-        amount: parseFloat(formData.amount),
+        amount: parseFloat(formData.amount.replace(/,/g, '')),
         description: formData.description,
         transaction_date: formData.date
       };
@@ -334,10 +386,13 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       {/* Header */}
-      <header className="dashboard-header">
+      <header className="dashboard-header">  
         <div className="header-content">
           <div className="header-left">
-            <h1 className="app-title">💰 Finance Tracker</h1>
+            <div className="app-header-wrapper">
+              
+              <h1 className="app-title">Finance Tracker</h1>
+            </div>
             <p className="user-greeting">
               Welcome back, <strong>{user.username}</strong> 
               <span className={`role-badge ${user.role}`} style={{ marginLeft: '8px' }}>
@@ -427,26 +482,26 @@ const Dashboard = () => {
             {/* Summary Cards */}
             <div className="summary-cards">
               <div className="summary-card income-card">
-                <div className="card-icon">💵</div>
+               <img src={MoneyCash} alt="Income" className='card-icon' />
                 <div className="card-content">
                   <p className="card-label">Total Income</p>
-                  <h2 className="card-value">₹{totalIncome.toLocaleString()}</h2>
+                  <h2 className="card-value">₹{totalIncome.toLocaleString('en-IN')}</h2>
                 </div>
               </div>
 
               <div className="summary-card expense-card">
-                <div className="card-icon">💸</div>
+                <img src={MoneyGoing} alt="Expenses" className='card-icon' />
                 <div className="card-content">
                   <p className="card-label">Total Expenses</p>
-                  <h2 className="card-value">₹{totalExpense.toLocaleString()}</h2>
+                  <h2 className="card-value">₹{totalExpense.toLocaleString('en-IN')}</h2>
                 </div>
               </div>
 
               <div className={`summary-card balance-card ${balance >= 0 ? 'positive' : 'negative'}`}>
-                <div className="card-icon">💰</div>
+                <img src={BalanceLeft} alt="Balance" className='card-icon' />
                 <div className="card-content">
                   <p className="card-label">Balance</p>
-                  <h2 className="card-value">₹{balance.toLocaleString()}</h2>
+                  <h2 className="card-value">₹{balance.toLocaleString('en-IN')}</h2>
                 </div>
               </div>
             </div>
@@ -473,7 +528,7 @@ const Dashboard = () => {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                      <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -492,7 +547,7 @@ const Dashboard = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                     <Legend />
                     <Bar dataKey="amount" fill="#8884d8">
                       {barChartData.map((entry, index) => (
@@ -507,8 +562,8 @@ const Dashboard = () => {
               <div className="chart-card">
                 <h3 className="chart-title">📉 Monthly Income vs Expenses (Line Chart)</h3>
                 {monthlyTrendData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={monthlyTrendData}>
+                  <ResponsiveContainer width="100%" height={300}> 
+                    <LineChart data={monthlyTrendData} margin={{ right: 30 }}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="month" 
@@ -517,7 +572,7 @@ const Dashboard = () => {
                         height={80}
                       />
                       <YAxis />
-                      <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                      <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                       <Legend />
                       <Line 
                         type="monotone" 
@@ -578,7 +633,10 @@ const Dashboard = () => {
                           </span>
                         </td>
                         <td className={`amount ${transaction.type}`}>
-                          {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
+                          {transaction.type === 'income' ? '+' : '-'}₹{Number(transaction.amount).toLocaleString('en-IN', 
+                                                                        { minimumFractionDigits: 2,
+                                                                          maximumFractionDigits: 2
+                                                                        })}
                         </td>
                       </tr>
                     ))}
@@ -623,7 +681,7 @@ const Dashboard = () => {
                 />
               </div>
             </div>
-
+           
             {/* Transactions List */}
             <div className="transactions-list">
               {filteredTransactions.length === 0 ? (
@@ -644,6 +702,7 @@ const Dashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
+                      
                       {filteredTransactions.map(transaction => (
                         <tr key={transaction.id}>
                           <td>{new Date(transaction.transaction_date).toLocaleDateString()}</td>
@@ -655,7 +714,10 @@ const Dashboard = () => {
                             </span>
                           </td>
                           <td className={`amount ${transaction.type}`}>
-                            {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
+                            {transaction.type === 'income' ? '+' : '-'}₹{Number(transaction.amount).toLocaleString('en-IN', 
+                                                                        {minimumFractionDigits: 2,
+                                                                           maximumFractionDigits: 2
+                                                                        })}                                               
                           </td>
                           {user.role !== 'read-only' && (
                             <td>
@@ -689,7 +751,7 @@ const Dashboard = () => {
           /* ADMIN VIEW */
           <div className="admin-view">
             <div className="admin-header">
-              <h2 className="page-title">👥 User Management</h2>
+              <h2 className="page-title" style={{ color: '#333' }}>👥 User Management</h2>
               <div className="role-info">
                 <span className="role-badge admin">Admin Access</span>
               </div>
@@ -849,15 +911,15 @@ const Dashboard = () => {
               </div>
 
               <div className="form-group">
-                <label>Amount ($)</label>
+                <label>Amount (₹)</label>
                 <input
-                  type="number"
+                  type="text"
                   name="amount"
                   value={formData.amount}
-                  onChange={handleInputChange}
+                  onChange={handleAmountChange}
                   className="form-input"
-                  step="0.01"
-                  min="0"
+                  //step="0.01"
+                  //min="0"
                   required
                 />
               </div>
@@ -989,3 +1051,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+
