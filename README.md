@@ -12,6 +12,7 @@ A full-stack web application for managing personal finances with income/expense 
 - ✅ **Data Visualization** - Pie, Bar, and Line charts with Recharts
 - ✅ **Role-Based Access Control** - Admin, User, and Read-Only roles
 - ✅ **API Documentation** - Interactive Swagger/OpenAPI docs at `/api/docs`
+- ✅ **Redis Caching** – Analytics endpoints cached for faster responses
 - ✅ **Rate Limiting** - Protection against abuse and brute force attacks
 
 ### Technical Highlights
@@ -19,6 +20,7 @@ A full-stack web application for managing personal finances with income/expense 
 - **Frontend**: React with Vite and Recharts for visualizations
 - **Authentication**: JWT with access & refresh tokens
 - **Database**: PostgreSQL with optimized indexes
+- **Caching**: Redis for analytics caching and performance optimization
 - **API**: RESTful with comprehensive error handling
 
 ---
@@ -70,7 +72,7 @@ npm run dev
 
 ```
 Sameer Full Stack/
-├── backend/                 # Express.js Backend
+├── backend/                # Express.js Backend
 │   ├── src/
 │   │   ├── server.js       # Main entry point with Swagger setup
 │   │   ├── config/         # Configuration (database, JWT, Swagger)
@@ -80,21 +82,24 @@ Sameer Full Stack/
 │   │   ├── middleware/     # Auth, error handling, RBAC
 │   │   ├── utils/          # JWT, validators
 │   │   └── db/             # Database schemas and SQL
-│   ├── package.json
-│   └── .env               # Environment variables
-│
+│   ├── package.json 
+│   └── .env                # Environment variables
+│ 
 ├── my-react-app/           # React Frontend
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── contexts/      # Auth context
-│   │   ├── services/      # API calls
-│   │   └── pages/         # Page components (Auth, Dashboard)
-│   ├── package.json
-│   └── .env              # Environment variables
-│
-├── SETUP.md              # 📖 Complete setup guide
-└── README.md             # This file
-```
+│   ├── src/ 
+│   │   ├── components/     # React components
+│   │   ├── contexts/       # Auth context
+│   │   ├── services/       # API calls
+│   │   └── pages/          # Page components (Auth, Dashboard)
+│   ├── package.json 
+│   └── .env                # Environment variables
+│  
+├── SETUP.md                # 📖 Complete setup guide
+└── README.md               # This file
+├── Quick_reference.md      # This file
+├── CHARTS_INTEGRATION.md   # This file             # 
+
+``` 
 
 ---
 
@@ -167,6 +172,7 @@ curl -X GET "http://localhost:5000/api/transactions/summary?startDate=2026-01-01
 ### Backend
 - **Framework**: Express.js
 - **Database**: PostgreSQL
+- **Caching**: Redis
 - **Authentication**: JWT (jsonwebtoken)
 - **Password Hashing**: bcrypt
 - **Documentation**: Swagger/OpenAPI (swagger-jsdoc)

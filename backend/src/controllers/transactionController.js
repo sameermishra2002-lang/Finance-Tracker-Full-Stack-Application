@@ -4,6 +4,7 @@
  */
 
 import * as Transaction from '../models/Transaction.js';
+import { getCache, setCache, clearCache } from '../utils/cache.js';
 
 /**
  * Create a new transaction
@@ -44,6 +45,11 @@ export const createTransaction = async (req, res, next) => {
       transaction_date
     });
     
+      await clearCache(`summary:${userId}`);
+      await clearCache(`category:${userId}`);
+      await clearCache(`monthlyTrend:${userId}`);
+      await clearCache(`yearlyOverview:${userId}`);
+
     res.status(201).json({
       message: 'Transaction created successfully',
       transaction: newTransaction
@@ -135,6 +141,11 @@ export const updateTransaction = async (req, res, next) => {
       userId,
       { type, category, amount, description, transaction_date }
     );
+
+               await clearCache(`summary:${userId}`);
+              await clearCache(`category:${userId}`);
+              await clearCache(`monthlyTrend:${userId}`);
+              await clearCache(`yearlyOverview:${userId}`);
     
     if (!updatedTransaction) {
       return res.status(404).json({ 
@@ -162,6 +173,11 @@ export const deleteTransaction = async (req, res, next) => {
     const transactionId = parseInt(req.params.id);
     
     const deletedTransaction = await Transaction.deleteTransaction(transactionId, userId);
+
+     await clearCache(`summary:${userId}`);
+     await clearCache(`category:${userId}`);
+     await clearCache(`monthlyTrend:${userId}`);
+     await clearCache(`yearlyOverview:${userId}`);
     
     if (!deletedTransaction) {
       return res.status(404).json({ 
@@ -189,7 +205,16 @@ export const getTransactionSummary = async (req, res, next) => {
     const startDate = req.query.startDate || null;
     const endDate = req.query.endDate || null;
     
+     const cacheKey = `summary:${userId}`;
+     const cached = await getCache(cacheKey);
+
+    if (cached) {
+      return res.json({ summary: cached });
+    }
+
     const summary = await Transaction.getTransactionSummary(userId, startDate, endDate);
+    await setCache(cacheKey, summary, 900); // 15 minutes
+
     
     res.json({ summary });
   } catch (error) {
@@ -206,8 +231,16 @@ export const getCategoryBreakdown = async (req, res, next) => {
     const userId = req.user.id;
     const startDate = req.query.startDate || null;
     const endDate = req.query.endDate || null;
-    
+
+    const cacheKey = `category:${userId}:${startDate}:${endDate}`;
+    const cached = await getCache(cacheKey);
+
+    if (cached) {
+      return res.json({ breakdown: cached });
+    }
+
     const breakdown = await Transaction.getCategoryBreakdown(userId, startDate, endDate);
+    await setCache(cacheKey, breakdown, 900); // 15 minutes
     
     res.json({ breakdown });
   } catch (error) {
@@ -224,7 +257,15 @@ export const getMonthlyTrend = async (req, res, next) => {
     const userId = req.user.id;
     const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
     
+    const cacheKey = `monthlyTrend:${userId}:${year}`;
+    const cached = await getCache(cacheKey);
+
+  if (cached) {
+  return res.json({ trend: cached });
+  }
+
     const trend = await Transaction.getMonthlyTrend(userId, year);
+    await setCache(cacheKey, trend, 900); // 15 minutes
     
     res.json({ trend });
   } catch (error) {
@@ -240,7 +281,15 @@ export const getYearlyOverview = async (req, res, next) => {
   try {
     const userId = req.user.id;
     
+    const cacheKey = `yearlyOverview:${userId}`;
+    const cached = await getCache(cacheKey);
+
+    if (cached) {
+      return res.json({ overview: cached });
+    }
+
     const overview = await Transaction.getYearlyOverview(userId);
+    await setCache(cacheKey, overview, 900); // 15 minutes
     
     res.json({ overview });
   } catch (error) {

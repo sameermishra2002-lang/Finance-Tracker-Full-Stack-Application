@@ -28,33 +28,45 @@ Complete Express.js backend with JWT-based authentication and Role-Based Access 
 ```
 backend/
 ├── src/
-│   ├── server.js                    # Entry point
-│   ├── config/
-│   │   ├── database.js             # PostgreSQL connection
-│   │   └── jwt.js                  # JWT configuration
-│   ├── models/
-│   │   └── User.js                 # User model
-│   ├── controllers/
-│   │   ├── authController.js       # Auth logic
-│   │   └── userController.js       # User management
-│   ├── middleware/
-│   │   ├── authMiddleware.js       # JWT verification
-│   │   ├── roleMiddleware.js       # RBAC checks
-│   │   └── errorHandler.js         # Error handling
-│   ├── routes/
-│   │   ├── authRoutes.js           # Auth endpoints
-│   │   └── userRoutes.js           # User endpoints
-│   ├── utils/
-│   │   ├── tokenUtils.js           # JWT utilities
-│   │   └── validators.js           # Input validation
-│   └── db/
-│       ├── init.sql                # Database creation
-│       └── schema.sql              # Table schemas
-├── .env.example                     # Example environment variables
+│   ├── server.js                       # Entry point
+│   ├── config/    
+│   │   ├── database.js                 # PostgreSQL connection
+│   │   └── jwt.js                      # JWT configuration
+│   │   └── rateLimit.js                # Rate limiting
+│   │   └── redis.js                    # Caching data
+│   │   └── swagger.js                  # API documentation
+│   ├── models/    
+│   │   └── User.js                     # User model
+│   │   └── Transaction.js              # DB operations
+│   ├── controllers/    
+│   │   ├── authController.js           # Auth logic
+│   │   |── userController.js           # User management
+│   │   └── transactionController.js    # CRUD Operations
+│   ├── middleware/    
+│   │   ├── authMiddleware.js           # JWT verification
+│   │   ├── roleMiddleware.js           # RBAC checks
+│   │   └── errorHandler.js             # Error handling
+│   ├── routes/    
+│   │   ├── authRoutes.js               # Auth endpoints
+│   │   └── userRoutes.js               # User endpoints
+│   │   └── transactionRoutes.js        # API  endpoints
+│   ├── utils/    
+│   │   ├── tokenUtils.js               # JWT utilities
+│   │   └── validators.js               # Input validation
+│   │   └── cache.js                    # Handle caching
+│   └── db/    
+│       ├── init.sql                    # Database creation
+│       └── schema.sql                  # Table schemas
+│   │   └── transactions-schema.sql     # Table transactions
+├── .env.example                        #Example environment variables
 ├── .gitignore
-└── package.json
+└── package.json                        # JWT configuration
+└── check-transactions.js               # Verify operations
+└── check-users-transactions.js         # Verify operations
+└── README.md
+└── RATE_LIMITING.md
+                    
 ```
-
 ## Setup Instructions
 
 ### 1. Install Dependencies
@@ -140,6 +152,26 @@ npm start
 ```
 
 Server will run on `http://localhost:5000`
+
+## step 5: Redis Setup (Caching Layer)
+
+This project uses **Redis** to cache analytics data such as:
+
+- Monthly income vs expense trends
+- Transaction summaries
+- Category breakdown analytics
+
+Caching helps reduce database load and improves dashboard performance.
+
+### Running Redis with Docker (Recommended)
+
+```bash
+docker run -d -p 6379:6379 --name redis-server redis
+
+Verify Redis is Running
+docker ps
+
+You should see a container running with port 6379.
 
 ## API Endpoints
 

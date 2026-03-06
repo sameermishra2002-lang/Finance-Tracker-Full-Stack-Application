@@ -122,6 +122,27 @@ Check that your `.env` matches the following:
 - JWT secrets are set to secure random values
 - CORS_ORIGIN points to your React app URL
 
+
+## step 5: Redis Setup (Caching Layer)
+
+This project uses **Redis** to cache analytics data such as:
+
+- Monthly income vs expense trends
+- Transaction summaries
+- Category breakdown analytics
+
+Caching helps reduce database load and improves dashboard performance.
+
+### Running Redis with Docker (Recommended)
+
+```bash
+docker run -d -p 6379:6379 --name redis-server redis
+
+Verify Redis is Running
+docker ps
+
+You should see a container running with port 6379.
+
 ---
 
 ## Frontend Setup
