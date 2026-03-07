@@ -63,24 +63,27 @@ const Dashboard = () => {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  // Fetch monthly trend data
-  useEffect(() => {
-    const fetchMonthlyTrend = async () => {
-      try {
-        setLoadingTrend(true);
-        const currentYear = new Date().getFullYear();
-        const trendData = await api.getMonthlyTrend(currentYear);
-        setMonthlyTrendData(trendData || []);
-      } catch (err) {
-        console.error('Error fetching monthly trend:', err);
-        setMonthlyTrendData([]);
-      } finally {
-        setLoadingTrend(false);
-      }
-    };
-    fetchMonthlyTrend();
-  }, []);
+  
+   // Fetch monthly trend data
+  const fetchMonthlyTrend = useCallback(async () => {
+  try {
+    setLoadingTrend(true);
+    const currentYear = new Date().getFullYear();
+    const trendData = await api.getMonthlyTrend(currentYear);
+    setMonthlyTrendData(trendData || []);
+  } catch (err) {
+    console.error('Error fetching monthly trend:', err);
+    setMonthlyTrendData([]);
+  } finally {
+    setLoadingTrend(false);
+  }
+}, []);
 
+useEffect(() => {
+  fetchMonthlyTrend();
+}, [fetchMonthlyTrend]);
+
+ 
   // ========================================================================
   // ADMIN: FETCH ALL USERS
   // ========================================================================
@@ -282,6 +285,7 @@ const handleAmountChange = (e) => {
       
       // Add to local state for immediate UI update
       setTransactions(prev => [response.transaction, ...prev]);
+      await fetchMonthlyTrend();
       setShowAddModal(false);
       resetForm();
       
@@ -291,7 +295,7 @@ const handleAmountChange = (e) => {
       console.error('Error creating transaction:', error);
       alert('Failed to add transaction. Please try again.');
     }
-  }, [user.role, formData]);
+  }, [user.role, formData, fetchMonthlyTrend]);
 
   const handleEditTransaction = useCallback((transaction) => {
     if (user.role === 'read-only') {
@@ -332,6 +336,8 @@ const handleAmountChange = (e) => {
         t.id === editingTransaction.id ? response.transaction : t
       ));
 
+      await fetchMonthlyTrend();
+
       setShowAddModal(false);
       setEditingTransaction(null);
       resetForm();
@@ -341,7 +347,7 @@ const handleAmountChange = (e) => {
       console.error('Error updating transaction:', error);
       alert('Failed to update transaction. Please try again.');
     }
-  }, [editingTransaction, formData]);
+  }, [editingTransaction, formData, fetchMonthlyTrend]);
 
   const handleDeleteTransaction = useCallback(async (id) => {
     if (user.role === 'read-only') {
@@ -355,6 +361,7 @@ const handleAmountChange = (e) => {
         
         // Remove from local state
         setTransactions(prev => prev.filter(t => t.id !== id));
+        await fetchMonthlyTrend();
         
         alert('Transaction deleted successfully!');
       } catch (error) {
@@ -362,7 +369,7 @@ const handleAmountChange = (e) => {
         alert('Failed to delete transaction. Please try again.');
       }
     }
-  }, [user.role]);
+  }, [user.role, fetchMonthlyTrend]);
 
   const resetForm = useCallback(() => {
     setFormData({
