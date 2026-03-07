@@ -264,6 +264,14 @@ const handleAmountChange = (e) => {
   });
 };
 
+const sortTransactionsByDateDesc = useCallback((items) => {
+  return [...items].sort((a, b) => {
+    const dateA = new Date(a.transaction_date || a.date);
+    const dateB = new Date(b.transaction_date || b.date);
+    return dateB - dateA;
+  });
+}, []);
+
   const handleAddTransaction = useCallback(async (e) => {
     e.preventDefault();
     
@@ -284,7 +292,7 @@ const handleAmountChange = (e) => {
       const response = await api.createTransaction(transactionData);
       
       // Add to local state for immediate UI update
-      setTransactions(prev => [response.transaction, ...prev]);
+     setTransactions(prev => sortTransactionsByDateDesc([response.transaction, ...prev]));
       await fetchMonthlyTrend();
       setShowAddModal(false);
       resetForm();
@@ -295,7 +303,7 @@ const handleAmountChange = (e) => {
       console.error('Error creating transaction:', error);
       alert('Failed to add transaction. Please try again.');
     }
-  }, [user.role, formData, fetchMonthlyTrend]);
+  }, [user.role, formData, fetchMonthlyTrend, sortTransactionsByDateDesc]);
 
   const handleEditTransaction = useCallback((transaction) => {
     if (user.role === 'read-only') {
@@ -332,9 +340,13 @@ const handleAmountChange = (e) => {
       const response = await api.updateTransaction(editingTransaction.id, transactionData);
       
       // Update in local state
-      setTransactions(prev => prev.map(t => 
-        t.id === editingTransaction.id ? response.transaction : t
-      ));
+     setTransactions(prev =>
+  sortTransactionsByDateDesc(
+    prev.map(t =>
+      t.id === editingTransaction.id ? response.transaction : t
+                )
+              )
+            );
 
       await fetchMonthlyTrend();
 
@@ -347,7 +359,7 @@ const handleAmountChange = (e) => {
       console.error('Error updating transaction:', error);
       alert('Failed to update transaction. Please try again.');
     }
-  }, [editingTransaction, formData, fetchMonthlyTrend]);
+  }, [editingTransaction, formData, fetchMonthlyTrend, sortTransactionsByDateDesc]);
 
   const handleDeleteTransaction = useCallback(async (id) => {
     if (user.role === 'read-only') {
